@@ -43,9 +43,7 @@ income_p_dpd <- dpd(income_p ~ provcd + urban + f_income + expense + asset_cash_
 
 identical(names(data1[[1]]), names(data1[[2]]))
 
-##########################
-# Example
-##########################
+##### Example
 		# Load data
 		data(Produc)
 		# Fit the dynamic panel data using the Arellano Bond (1991) instruments
@@ -64,9 +62,11 @@ income_p_plm_ab = plm(income_p~provcd + urban + f_income + expense + asset_cash_
 
 ## Here seem need to use the pgmm package
 
-##########################
-# Example
-##########################
+
+
+#### Example:
+### http://stats.stackexchange.com/questions/111643/fit-measures-for-gmm-arellano-bond-estimator-in-r
+
 data("EmplUK", package = "plm")
 ## Arellano and Bond (1991), table 4b 
 z1 <- pgmm(log(emp) ~ lag(log(emp), 1:2) + lag(log(wage), 0:1)
