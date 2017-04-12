@@ -25,17 +25,23 @@ table(family_head_all_restrict2_0$num_obs)
 
 
 ## Keep obs with complete
-family_head_all_restrict2_1 <- family_head_all_restrict2_0 %>% filter(num_obs ==3)
+# family_head_all_restrict2_1 <- family_head_all_restrict2_0 %>% 
+#   filter(num_obs ==3) %>% 
+#   group_by(fid10,year) %>%
+#   dplyr::mutate(num_obs = n()) %>% ungroup()
 
-## Deal obs with more
+#   table(family_head_all_restrict2_1$num_obs)
+
+  
+## Only keep obs with num_obs 3 or more
 family_head_all_restrict2_2 <- family_head_all_restrict2_0 %>%
-	filter(num_obs >3) %>%
+	filter(num_obs >=3) %>%
 	group_by(year,fid10) %>% # here group by both fid10 and year to see duplicates in a single year
 	dplyr::mutate(num_obs = n())
 
 table(family_head_all_restrict2_2$num_obs)
-	#    1    2    3    4    5 
-	# 2779 3608  489   60    5 
+	# 1     2     3     4     5 
+	# 31521  3780   492    60     5 
 
 family_head_all_restrict2_20 <- family_head_all_restrict2_2 %>% filter(num_obs ==1) 
 
@@ -73,20 +79,26 @@ family_head_all_restrict2_21 <- family_head_all_restrict2_2 %>%
 			employ = first(employ),
 			num_obs = mean(num_obs,na.rm=T)) 
 
-family_head_all_restrict2_23 <- bind_rows(family_head_all_restrict2_20, family_head_all_restrict2_21)
-family_head_all_restrict2_23<-family_head_all_restrict2_23[order(family_head_all_restrict2_23$fid10),]
+family_head_all_restrict2_23 <- bind_rows(family_head_all_restrict2_20, family_head_all_restrict2_21) # bind together
+family_head_all_restrict2_23 <- family_head_all_restrict2_23[order(family_head_all_restrict2_23$fid10),] # order
 family_head_all_restrict2_23 <- family_head_all_restrict2_23 %>% group_by(fid10) %>% mutate(num_obs = n())
 table(family_head_all_restrict2_23$num_obs)
-  #  2    3 
-  # 28 4734 
-family_head_all_restrict2_23 <- family_head_all_restrict2_23 %>% filter(num_obs ==3)
+	# 1     2     3 
+	# 1   200 33390 
 
 ## Append together
-
-family_head_all_restrict_final <- bind_rows(family_head_all_restrict2_1, family_head_all_restrict2_23) %>%
+family_head_all_restrict_final <- family_head_all_restrict2_23 %>% 
+	filter(num_obs ==3) %>%
 	group_by(fid10) %>%
-	dplyr::mutate(num_obs = n())
+	dplyr::mutate(num_obs = n()) %>% ungroup %>%
+	group_by(fid10,year) %>%
+	dplyr::mutate(num_obs_year = n()) %>% ungroup
+
 table(family_head_all_restrict_final$num_obs)
+table(family_head_all_restrict_final$num_obs_year)
+
+family_head_all_restrict_final$num_obs <- NULL
+family_head_all_restrict_final$num_obs_year <- NULL
 
 ################################################
 # Merge in and replace ethnicity data
