@@ -57,7 +57,7 @@ family_head_all_restrict2_21 <- family_head_all_restrict2_2 %>%
 			expense = mean(expense,na.rm=T),
 			asset_cash_deposit = mean(asset_cash_deposit,na.rm=T),
 			asset_financial = mean(asset_financial,na.rm=T),
-			house_ownership = mean(house_ownership,na.rm=T),
+			house_ownership = first(house_ownership),
 			house_price = mean(house_price,na.rm=T),
 			house_price_tot = mean(house_price_tot,na.rm=T),
 			debt_mortgage_tot = mean(debt_mortgage_tot,na.rm=T),
@@ -189,26 +189,45 @@ family_head_all_restrict_final_1$house_price <- ifelse(family_head_all_restrict_
 ################################################
 
 family_head_all_restrict_final_1 <- family_head_all_restrict_final_1 %>%
+	mutate( exchange_rate = ifelse(year==2010,6.770,ifelse(year==2012,6.312,ifelse(year==2014,6.143,NA)))) %>%
 	mutate( asset_liq = asset_cash_deposit+asset_financial, 
 		    asset_tot = asset_cash_deposit+asset_financial+house_price, 
 		    asset_net = asset_cash_deposit+asset_financial+house_price-debt_tot) %>%
-	mutate( asset_liq_index = asset_liq/(mls*familysize*3),
-		    asset_tot_index = asset_tot/(mls*familysize*3),
-		    asset_net_index = asset_net/(mls*familysize*3)) %>%
-	mutate( asset_liq_p = ifelse(asset_liq_index<1,1,0),
-			asset_tot_p = ifelse(asset_tot_index<1,1,0),
-			asset_net_p = ifelse(asset_net_index<1,1,0)) %>%
-	mutate( income_index = f_income/(12*mls*familysize), 
-			income_p = ifelse(income_index<1,1,0))
+	mutate( asset_liq_index_mls = asset_liq/(mls*familysize*3),
+		    asset_tot_index_mls = asset_tot/(mls*familysize*3),
+		    asset_net_index_mls = asset_net/(mls*familysize*3)) %>%
+	mutate( asset_liq_p_mls = ifelse(asset_liq_index_mls<1,1,0),
+			asset_tot_p_mls = ifelse(asset_tot_index_mls<1,1,0),
+			asset_net_p_mls = ifelse(asset_net_index_mls<1,1,0)) %>%
+	mutate( income_index_mls = f_income/(12*mls*familysize), 
+			income_p_mls = ifelse(income_index_mls<1,1,0)) %>%
+	group_by(year) %>%
+	mutate( asset_liq_index_wb = asset_liq/(1.25*exchange_rate*91.25*familysize),
+		    asset_tot_index_wb = asset_tot/(1.25*exchange_rate*91.25*familysize),
+		    asset_net_index_wb = asset_net/(1.25*exchange_rate*91.25*familysize)) %>%
+	mutate( asset_liq_p_wb = ifelse(asset_liq_index_wb<1,1,0),
+			asset_tot_p_wb = ifelse(asset_tot_index_wb<1,1,0),
+			asset_net_p_wb = ifelse(asset_net_index_wb<1,1,0)) %>%
+	mutate( income_index_wb = f_income/(365.25*1.25*exchange_rate*familysize), 
+			income_p_wb = ifelse(income_index_wb<1,1,0))
 
 family_head_all_restrict_final_1 <- family_head_all_restrict_final_1 %>%
-	mutate(income_p_asset_p = ifelse(income_p == 0,0,ifelse(asset_net_p ==0,0,1)), 
-		   income_np_asset_p = ifelse(income_p == 1,0,ifelse(asset_net_p ==0,0,1)), 
-		   income_p_asset_np = ifelse(income_p == 0,0,ifelse(asset_net_p ==1,0,1)), 
-		   income_np_asset_np = ifelse(income_p == 1,0,ifelse(asset_net_p ==1,0,1)))
+	mutate(income_p_asset_p_mls = ifelse(income_p_mls == 0,0,ifelse(asset_net_p_mls ==0,0,1)), 
+		   income_np_asset_p_mls = ifelse(income_p_mls == 1,0,ifelse(asset_net_p_mls ==0,0,1)), 
+		   income_p_asset_np_mls = ifelse(income_p_mls == 0,0,ifelse(asset_net_p_mls ==1,0,1)), 
+		   income_np_asset_np_mls = ifelse(income_p_mls == 1,0,ifelse(asset_net_p_mls ==1,0,1))) %>%
+	mutate(income_p_asset_p_wb = ifelse(income_p_wb == 0,0,ifelse(asset_net_p_wb ==0,0,1)), 
+		   income_np_asset_p_wb = ifelse(income_p_wb == 1,0,ifelse(asset_net_p_wb ==0,0,1)), 
+		   income_p_asset_np_wb = ifelse(income_p_wb == 0,0,ifelse(asset_net_p_wb ==1,0,1)), 
+		   income_np_asset_np_wb = ifelse(income_p_wb == 1,0,ifelse(asset_net_p_wb ==1,0,1)))
 
+family_head_all_restrict_final_1 <- family_head_all_restrict_final_1 %>% filter(asset_net_index_wb<10000,income_index_wb<200,asset_net_index_mls<5000,income_index_mls<100)
 ## See summary
-ggplot(family_head_all_restrict_final_1, aes(y=asset_net_index, x=income_index)) +
+ggplot(family_head_all_restrict_final_1, aes(y=asset_net_index_mls, x=income_index_mls)) +
+  geom_point(shape = 1)+
+  geom_smooth(method=lm) 
+
+ggplot(family_head_all_restrict_final_1, aes(y=asset_net_index_wb, x=income_index_wb)) +
   geom_point(shape = 1)+
   geom_smooth(method=lm) 
 
@@ -216,11 +235,15 @@ ggplot(family_head_all_restrict_final_1, aes(y=asset_liq_index, x=income_index))
   geom_point(shape = 1)+
   geom_smooth(method=lm) 
 
-	summary(family_head_all_restrict_final_1$income_p_asset_p)
-	summary(family_head_all_restrict_final_1$income_np_asset_p)
-	summary(family_head_all_restrict_final_1$income_p_asset_np)
-	summary(family_head_all_restrict_final_1$income_np_asset_np)
+	summary(family_head_all_restrict_final_1$income_p_asset_p_mls)
+	summary(family_head_all_restrict_final_1$income_np_asset_p_mls)
+	summary(family_head_all_restrict_final_1$income_p_asset_np_mls)
+	summary(family_head_all_restrict_final_1$income_np_asset_np_mls)
 
+	summary(family_head_all_restrict_final_1$income_p_asset_p_wb)
+	summary(family_head_all_restrict_final_1$income_np_asset_p_wb)
+	summary(family_head_all_restrict_final_1$income_p_asset_np_wb)
+	summary(family_head_all_restrict_final_1$income_np_asset_np_wb)
 
 family_head_all_restrict_final_2 <- family_head_all_restrict_final_1 %>%
 	filter(income_index <100, asset_liq_index<300)
