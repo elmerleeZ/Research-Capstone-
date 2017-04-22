@@ -203,10 +203,12 @@ capture log close
 set more off
 
 cd "/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS"
+cd "C:/Users/zyl220/Downloads/temp"
 use family_head_all_restrict_final_2, clear
 
 set more off
 log using "/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Output/Regression_motinomial.log", replace
+log using "C:/Users/zyl220/Downloads/temp/Regression_motinomial.log", replace
 
 /*** Poverty Category MLS ***/
 set more off
