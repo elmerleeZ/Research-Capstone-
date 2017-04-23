@@ -178,19 +178,19 @@ gen eth_han=0
 replace eth_han=1 if ethnicity==1
 
 /*** Dependent ***/
-gen ln_income=ln(f_income)
-gen ln_asset=ln(asset_liq)
-replace ln_asset=0 if ln_asset==.
+   * gen ln_income=ln(f_income)
+   * gen ln_asset=ln(asset_liq)
+   * replace ln_asset=0 if ln_asset==.
 
-gen category_mls = 0 if income_p_asset_p_mls==1
-replace category_mls = 1 if income_np_asset_p_mls==1
-replace category_mls = 2 if income_p_asset_np_mls==1
-replace category_mls = 3 if income_np_asset_np_mls==1
+gen category_mls = 1 if income_p_asset_p_mls==1
+replace category_mls = 2 if income_np_asset_p_mls==1
+replace category_mls = 3 if income_p_asset_np_mls==1
+replace category_mls = 0 if income_np_asset_np_mls==1
 
-gen category_wb = 0 if income_p_asset_p_wb==1
-replace category_wb = 1 if income_np_asset_p_wb==1
-replace category_wb = 2 if income_p_asset_np_wb==1
-replace category_wb = 3 if income_np_asset_np_wb==1
+gen category_wb = 1 if income_p_asset_p_wb==1
+replace category_wb = 2 if income_np_asset_p_wb==1
+replace category_wb = 3 if income_p_asset_np_wb==1
+replace category_wb = 0 if income_np_asset_np_wb==1
 
 save family_head_all_restrict_final_2, replace
 
@@ -214,14 +214,14 @@ log using "C:/Users/zyl220/Downloads/temp/Regression_motinomial.log", replace
 set more off
 femlogit category_mls urban f_income expense asset_liq house_price debt_tot house_ownership old children depen familysize ///
    eth_han age age2 gender edu2 edu3 edu4 marr health1 health2 employed ///
-   year12 year14 Tianjin Hebei Shanxi Liaoning Jilin Heilongjiang Shanghai Jiangsu Zhejiang Anhui Fujian Jiangxi Shandong Henan Hubei Hunan Guangdong Guangxi Chongqing Sichuan Guizhou Yunnan Shannxi Gansu, group(fid10) b(3)
+   year12 year14 Tianjin Hebei Shanxi Liaoning Jilin Heilongjiang Shanghai Jiangsu Zhejiang Anhui Fujian Jiangxi Shandong Henan Hubei Hunan Guangdong Guangxi Chongqing Sichuan Guizhou Yunnan Shannxi Gansu, group(fid10) b(0)
 outreg2 using femlogit1.doc, replace
 
 /*** Poverty Category WB ***/
 set more off
 femlogit category_wb urban f_income expense asset_liq house_price debt_tot house_ownership old children depen familysize ///
    eth_han age age2 gender edu2 edu3 edu4 marr health1 health2 employed ///
-   year12 year14 Tianjin Hebei Shanxi Liaoning Jilin Heilongjiang Shanghai Jiangsu Zhejiang Anhui Fujian Jiangxi Shandong Henan Hubei Hunan Guangdong Guangxi Chongqing Sichuan Guizhou Yunnan Shannxi Gansu, group(fid10) b(3)
+   year12 year14 Tianjin Hebei Shanxi Liaoning Jilin Heilongjiang Shanghai Jiangsu Zhejiang Anhui Fujian Jiangxi Shandong Henan Hubei Hunan Guangdong Guangxi Chongqing Sichuan Guizhou Yunnan Shannxi Gansu, group(fid10) b(0)
 outreg2 using femlogit2.doc, replace
 
 
@@ -231,7 +231,7 @@ outreg2 using femlogit2.doc, replace
 set more off
 femlogit category_mls urban f_income expense asset_liq house_price debt_tot house_ownership old children depen familysize ///
    eth_han age age2 gender edu2 edu3 edu4 marr health1 health2 employed ///
-   Tianjin Hebei Shanxi Liaoning Jilin Heilongjiang Shanghai Jiangsu Zhejiang Anhui Fujian Jiangxi Shandong Henan Hubei Hunan Guangdong Guangxi Chongqing Sichuan Guizhou Yunnan Shannxi Gansu, group(fid10) b(3)
+   Tianjin Hebei Shanxi Liaoning Jilin Heilongjiang Shanghai Jiangsu Zhejiang Anhui Fujian Jiangxi Shandong Henan Hubei Hunan Guangdong Guangxi Chongqing Sichuan Guizhou Yunnan Shannxi Gansu, group(fid10) b(0)
 outreg2 using femlogit1.doc, append 
 
 ** no prov effect
@@ -244,7 +244,7 @@ outreg2 using femlogit1.doc, append
 set more off
 femlogit category_mls urban expense house_ownership old children depen familysize ///
    eth_han age age2 gender edu2 edu3 edu4 marr health1 health2 employed ///
-   year12 year14 Tianjin Hebei Shanxi Liaoning Jilin Heilongjiang Shanghai Jiangsu Zhejiang Anhui Fujian Jiangxi Shandong Henan Hubei Hunan Guangdong Guangxi Chongqing Sichuan Guizhou Yunnan Shannxi Gansu, group(fid10) b(3)
+   year12 year14 Tianjin Hebei Shanxi Liaoning Jilin Heilongjiang Shanghai Jiangsu Zhejiang Anhui Fujian Jiangxi Shandong Henan Hubei Hunan Guangdong Guangxi Chongqing Sichuan Guizhou Yunnan Shannxi Gansu, group(fid10) b(0)
 outreg2 using femlogit1.doc, append
 
 /*** Poverty Category WB ***/
@@ -252,7 +252,7 @@ outreg2 using femlogit1.doc, append
 set more off
 femlogit category_wb urban f_income expense asset_liq house_price debt_tot house_ownership old children depen familysize ///
    eth_han age age2 gender edu2 edu3 edu4 marr health1 health2 employed ///
-   Tianjin Hebei Shanxi Liaoning Jilin Heilongjiang Shanghai Jiangsu Zhejiang Anhui Fujian Jiangxi Shandong Henan Hubei Hunan Guangdong Guangxi Chongqing Sichuan Guizhou Yunnan Shannxi Gansu, group(fid10) b(3)
+   Tianjin Hebei Shanxi Liaoning Jilin Heilongjiang Shanghai Jiangsu Zhejiang Anhui Fujian Jiangxi Shandong Henan Hubei Hunan Guangdong Guangxi Chongqing Sichuan Guizhou Yunnan Shannxi Gansu, group(fid10) b(0)
 outreg2 using femlogit2.doc, append 
 
 ** no prov effect
@@ -265,7 +265,7 @@ outreg2 using femlogit2.doc, append
 set more off
 femlogit category_wb urban expense house_ownership old children depen familysize ///
    eth_han age age2 gender edu2 edu3 edu4 marr health1 health2 employed ///
-   year12 year14 Tianjin Hebei Shanxi Liaoning Jilin Heilongjiang Shanghai Jiangsu Zhejiang Anhui Fujian Jiangxi Shandong Henan Hubei Hunan Guangdong Guangxi Chongqing Sichuan Guizhou Yunnan Shannxi Gansu, group(fid10) b(3)
+   year12 year14 Tianjin Hebei Shanxi Liaoning Jilin Heilongjiang Shanghai Jiangsu Zhejiang Anhui Fujian Jiangxi Shandong Henan Hubei Hunan Guangdong Guangxi Chongqing Sichuan Guizhou Yunnan Shannxi Gansu, group(fid10) b(0)
 outreg2 using femlogit2.doc, append
 
 
@@ -281,8 +281,9 @@ mlogit category_mls urban expense asset_cash_deposit asset_financial house_owner
    year12 year14 Tianjin Hebei Shanxi Liaoning Jilin Heilongjiang Shanghai Jiangsu Zhejiang Anhui Fujian Jiangxi Shandong Henan Hubei Hunan Guangdong Guangxi Chongqing Sichuan Guizhou Yunnan Shannxi Gansu, base(3)
 
 /*** fixed effects seperate ***/
-areg both_poor urban expense old children depen familysize eth_han age age2 gender edu2 edu3 edu4 marr health1 health2 emplo year12 year14 Tianjin Hebei Shanxi Liaoning Jilin Heilongjiang Shanghai Jiangsu Zhejiang Anhui Fujian Jiangxi Shandong Henan Hubei Hunan Guangdong Guangxi Chongqing Sichuan Guizhou Yunnan Shannxi Gansu, absorb(fid10)
+areg category_wb urban f_income expense asset_liq house_price debt_tot house_ownership old children depen familysize, absorb(fid10)
 outreg2 using cate.doc, replace ctitle(both) 
+
 areg inc_poor urban expense old children depen familysize eth_han age age2 gender edu2 edu3 edu4 marr health1 health2 emplo year12 year14 Tianjin Hebei Shanxi Liaoning Jilin Heilongjiang Shanghai Jiangsu Zhejiang Anhui Fujian Jiangxi Shandong Henan Hubei Hunan Guangdong Guangxi Chongqing Sichuan Guizhou Yunnan Shannxi Gansu, absorb(fid10)
 outreg2 using cate.doc, append ctitle(income) 
 areg ass_poor urban expense old children depen familysize ethni age age2 gender edu2 edu3 edu4 marr health1 health2 emplo year12 year14 Tianjin Hebei Shanxi Liaoning Jilin Heilongjiang Shanghai Jiangsu Zhejiang Anhui Fujian Jiangxi Shandong Henan Hubei Hunan Guangdong Guangxi Chongqing Sichuan Guizhou Yunnan Shannxi Gansu, absorb(fid10)
@@ -295,5 +296,5 @@ gsem (1.category_mls <- urban expense asset_cash_deposit asset_financial house_o
      (2.category_mls <- urban expense asset_cash_deposit asset_financial house_ownership RI3[fid10]), mlogit
 
 /*** femlogit ***/
-femlogit category_mls urban expense f_income debt_tot, group(fid10) b(3)
+femlogit category_mls urban expense f_income debt_tot, group(fid10) b(0)
 
