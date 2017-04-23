@@ -206,6 +206,10 @@ cd "/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017
 cd "C:/Users/zyl220/Downloads/temp"
 use family_head_all_restrict_final_2, clear
 
+** Still expense need to be changed: 
+rename expense expense_old
+replace expense = expense_old/1000
+
 set more off
 log using "/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Output/Regression_motinomial.log", replace
 log using "C:/Users/zyl220/Downloads/temp/Regression_motinomial.log", replace
