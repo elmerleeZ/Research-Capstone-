@@ -210,6 +210,11 @@ set more off
 log using "/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Output/Regression_motinomial.log", replace
 log using "C:/Users/zyl220/Downloads/temp/Regression_motinomial.log", replace
 
+** Set panelvar
+xtset fid10 year
+
+*** FULL ***
+
 /*** Poverty Category MLS ***/
 set more off
 femlogit category_mls urban f_income expense asset_liq house_price debt_tot house_ownership old children depen familysize ///
@@ -226,29 +231,79 @@ outreg2 using femlogit2.doc, replace
 
 
 
+
+
+
+*** SUBSET ***
+
 /*** Poverty Category MLS ***/
-** no year effect
+** WITH ASSET
+
+/*** no year effect
 set more off
 femlogit category_mls urban f_income expense asset_liq house_price debt_tot house_ownership old children depen familysize ///
    eth_han age age2 gender edu2 edu3 edu4 marr health1 health2 employed ///
    Tianjin Hebei Shanxi Liaoning Jilin Heilongjiang Shanghai Jiangsu Zhejiang Anhui Fujian Jiangxi Shandong Henan Hubei Hunan Guangdong Guangxi Chongqing Sichuan Guizhou Yunnan Shannxi Gansu, group(fid10) b(0)
 outreg2 using femlogit1.doc, append 
 
-** no prov effect
+** no year no prov effect
 set more off
 femlogit category_mls urban f_income expense asset_liq house_price debt_tot house_ownership old children depen familysize ///
    eth_han age age2 gender edu2 edu3 edu4 marr health1 health2 employed
 outreg2 using femlogit1.doc, append 
+*/
 
-** test: no income and asset
+** WITHOUT ASSET
+/***  no income asset effect
+   ** this doesn't work! 
 set more off
 femlogit category_mls urban expense house_ownership old children depen familysize ///
    eth_han age age2 gender edu2 edu3 edu4 marr health1 health2 employed ///
    year12 year14 Tianjin Hebei Shanxi Liaoning Jilin Heilongjiang Shanghai Jiangsu Zhejiang Anhui Fujian Jiangxi Shandong Henan Hubei Hunan Guangdong Guangxi Chongqing Sichuan Guizhou Yunnan Shannxi Gansu, group(fid10) b(0)
 outreg2 using femlogit1.doc, append
 
+**  no asset effect
+   ** this won't work I guess
+set more off
+femlogit category_mls urban f_income expense house_ownership old children depen familysize ///
+   eth_han age age2 gender edu2 edu3 edu4 marr health1 health2 employed ///
+   year12 year14 Tianjin Hebei Shanxi Liaoning Jilin Heilongjiang Shanghai Jiangsu Zhejiang Anhui Fujian Jiangxi Shandong Henan Hubei Hunan Guangdong Guangxi Chongqing Sichuan Guizhou Yunnan Shannxi Gansu, group(fid10) b(0)
+outreg2 using femlogit1.doc, append
+*/
+
+
+**  no year no prov no asset effect
+set more off
+femlogit category_mls urban expense house_ownership old children depen familysize ///
+   year12 year14 eth_han age age2 gender edu2 edu3 edu4 marr health1 employed, group(fid10) b(3) 
+outreg2 using femlogit1.doc, replace 
+
+set more off
+femlogit category_mls urban expense house_ownership old children depen familysize ///
+   year12 year14 eth_han age age2 gender edu2 edu3 edu4 marr health1 employed, group(fid10) b(3) or
+outreg2 using femlogit12.doc, tstat eform see replace
+
+/***  no year no prov with specific asset effect
+   ** this doesn't work! 
+set more off
+femlogit category_mls urban f_income expense asset_liq house_price debt_tot house_ownership old children depen familysize ///
+   eth_han age age2 gender edu2 edu3 edu4 marr health1 health2 employed
+outreg2 using femlogit1.doc, append 
+
+**  no year no prov with asset_net effect
+   ** this doesn't work! 
+set more off
+femlogit category_mls urban f_income expense asset_net house_ownership old children depen familysize ///
+   eth_han age age2 gender edu2 edu3 edu4 marr health1 health2 employed
+outreg2 using femlogit1.doc, append 
+*/
+
+
+
 /*** Poverty Category WB ***/
-** no year effect
+** WITH ASSET
+
+/*** no year effect
 set more off
 femlogit category_wb urban f_income expense asset_liq house_price debt_tot house_ownership old children depen familysize ///
    eth_han age age2 gender edu2 edu3 edu4 marr health1 health2 employed ///
@@ -260,13 +315,36 @@ set more off
 femlogit category_wb urban f_income expense asset_liq house_price debt_tot house_ownership old children depen familysize ///
    eth_han age age2 gender edu2 edu3 edu4 marr health1 health2 employed
 outreg2 using femlogit2.doc, append 
+*/
 
-** test: no income and asset
+
+** WITHOUT ASSET
+
+/*** no income asset
 set more off
 femlogit category_wb urban expense house_ownership old children depen familysize ///
    eth_han age age2 gender edu2 edu3 edu4 marr health1 health2 employed ///
    year12 year14 Tianjin Hebei Shanxi Liaoning Jilin Heilongjiang Shanghai Jiangsu Zhejiang Anhui Fujian Jiangxi Shandong Henan Hubei Hunan Guangdong Guangxi Chongqing Sichuan Guizhou Yunnan Shannxi Gansu, group(fid10) b(0)
 outreg2 using femlogit2.doc, append
+
+** no asset
+set more off
+femlogit category_wb urban f_income expense house_ownership old children depen familysize ///
+   eth_han age age2 gender edu2 edu3 edu4 marr health1 health2 employed ///
+   year12 year14 Tianjin Hebei Shanxi Liaoning Jilin Heilongjiang Shanghai Jiangsu Zhejiang Anhui Fujian Jiangxi Shandong Henan Hubei Hunan Guangdong Guangxi Chongqing Sichuan Guizhou Yunnan Shannxi Gansu, group(fid10) b(0)
+outreg2 using femlogit2.doc, append*/
+
+
+** no asset no year no prov
+set more off
+femlogit category_wb urban expense house_ownership old children depen familysize ///
+   year12 year14 eth_han age age2 gender edu2 edu3 edu4 marr health1 employed, group(fid10) b(3)
+outreg2 using femlogit2.doc, replace
+
+set more off
+femlogit category_wb urban expense house_ownership old children depen familysize ///
+   year12 year14 eth_han age age2 gender edu2 edu3 edu4 marr health1 employed, group(fid10) b(3) or
+outreg2 using femlogit22.doc, tstat eform see replace
 
 
 
