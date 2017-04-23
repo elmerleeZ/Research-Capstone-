@@ -2,10 +2,6 @@
 # Prepare
 ################################################
 
-# setwd("~/Dropbox/NYU/Spring/Econometrics/Project/Data")
-setwd("/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS")
-load("family_head_all_restrict_final_1.RData")
-
 # set up useful functions 
 `%S%` <- function(x, y) {
   paste0(x, y)
@@ -22,11 +18,15 @@ library(tidyverse)
 library(stargazer)
 library(MASS)
 library(caret)
+library(readstata13)
+
+setwd("/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS")
+family_head_all_restrict_final_2 <- read.dta13("family_head_all_restrict_final_2.dta")
+
 
 ######################################################################
 # Organize Data
 ######################################################################
-
 #Creating one categorical variable
 family_head_all_restrict_final_1$provcd[family_head_all_restrict_final_1$provcd == 15] <- 14
 family_head_all_restrict_final_1$provcd[family_head_all_restrict_final_1$provcd == 46] <- 45
@@ -51,33 +51,274 @@ misclassification.rate=function(tab){
 }
 
 ##Using 2010 and 2012 as train, to test on 2014
-train = subset(family_head_all_restrict_final_1, year<2013)
-test = subset(family_head_all_restrict_final_1, year>2013)
+train = subset(family_head_all_restrict_final_2, year<2013)
+test = subset(family_head_all_restrict_final_2, year>2013)
 
 ######################################################################
 # LDA Model 
 ######################################################################
 
-lda1 = lda(category ~  urban + f_income + expense + asset_cash_deposit + asset_financial + house_ownership + house_price + house_price_tot + debt_mortgage_tot + debt_frind_other_ins + debt_tot + old + children + depen + familysize 
-  + eth_han + age + gender + edu_highest + marriage + health + p_income + employ
-  ,data = train)
+
+##########################
+# Poverty MLS
+##########################
+
+lda_mls_1 = lda(category_mls~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + year12+Tianjin+Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
+      , data = train)
+
+lda_mls_2 = lda(category_mls~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      +Tianjin+Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
+      , data = train)
+
+lda_mls_3 = lda(category_mls~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      , data = train)
+
+lda_mls_4 = lda(category_mls~urban+expense+house_ownership+old+children+depen+familysize
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + year12+Tianjin+Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
+      , data = train)
 
 #Predicting the test data
-pred_lda1 = predict(lda1, newdata=test)$class
+pred_lda_mls_1 = predict(lda_mls_1, newdata=test)$class
+pred_lda_mls_2 = predict(lda_mls_2, newdata=test)$class
+pred_lda_mls_3 = predict(lda_mls_3, newdata=test)$class
+pred_lda_mls_4 = predict(lda_mls_4, newdata=test)$class
 
 #Comparing predictions vs. real
-tab = table(pred_lda1, test$category)
-tab
-    #did LDA predict no people in income_p_asset_p or am I reading the table wrong? 
+tab1 = table(pred_lda_mls_1, test$category_mls)
+tab2 = table(pred_lda_mls_2, test$category_mls)
+tab3 = table(pred_lda_mls_3, test$category_mls)
+tab4 = table(pred_lda_mls_4, test$category_mls)
+tab1
+tab2
+tab3
+tab4
+    #did lda predict no people in income_p_asset_p or am I reading the table wrong? 
 
 #Calculate misclassification rate
-misclassification.rate(tab)
-    #LDA misclassified 28.4% of observations
+misclassification.rate(tab1)
+misclassification.rate(tab2)
+misclassification.rate(tab3)
+misclassification.rate(tab4)
+
+lda_mls_1
+lda_mls_2
+lda_mls_3
+lda_mls_4
+
+
+##########################
+# Try to test significance
+##########################
+    # mydata.manova <- manova(category_mls~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
+    #       + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed,  data=train)
+    # summary(mydata.manova, test="Wilks")
+
+    # mydata.lda.predict <- predict(lda_mls_3,data=train)
+    # #join predictions to original dataframe
+    # mydata2 <- cbind(train, mydata.lda.predict)
+
+    # test1 <- aov(mydata2$x.LD1 ~d$category_mls)
+    # summary(test1)
+
+    # test2 <- aov(mydata2$x.LD2 ~d$category_mls)
+    # summary(test2)
+
+    # test3 <- aov(mydata2$x.LD3 ~d$category_mls)
+    # summary(test3)
+
+
+##########################
+# Poverty WB
+##########################
+
+lda_wb_1 = lda(category_wb~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + year12+Tianjin+Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
+      , data = train)
+
+lda_wb_2 = lda(category_wb~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      +Tianjin+Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
+      , data = train)
+
+lda_wb_3 = lda(category_wb~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      , data = train)
+
+lda_wb_4 = lda(category_wb~urban+expense+house_ownership+old+children+depen+familysize
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + year12+Tianjin+Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
+      , data = train)
+
+lda_wb_5 = lda(category_wb~urban+expense+house_ownership+old+children+depen+familysize
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      , data = train)
+
+#Predicting the test data
+pred_lda_wb_1 = predict(lda_wb_1, newdata=test)$class
+pred_lda_wb_2 = predict(lda_wb_2, newdata=test)$class
+pred_lda_wb_3 = predict(lda_wb_3, newdata=test)$class
+pred_lda_wb_4 = predict(lda_wb_4, newdata=test)$class
+pred_lda_wb_5 = predict(lda_wb_5, newdata=test)$class
+
+#Comparing predictions vs. real
+tab1 = table(pred_lda_wb_1, test$category_wb)
+tab2 = table(pred_lda_wb_2, test$category_wb)
+tab3 = table(pred_lda_wb_3, test$category_wb)
+tab4 = table(pred_lda_wb_3, test$category_wb)
+tab5 = table(pred_lda_wb_3, test$category_wb)
+tab1
+tab2
+tab3
+tab4
+tab5
+    #did qda predict no people in income_p_asset_p or am I reading the table wrong? 
+
+#Calculate misclassification rate
+misclassification.rate(tab1)
+misclassification.rate(tab2)
+misclassification.rate(tab3)
+misclassification.rate(tab4)
+misclassification.rate(tab5)
+
+lda_wb_1
+lda_wb_2
+lda_wb_3
+lda_wb_4
+lda_wb_5
 
 
 ######################################################################
 # QDA Model 
 ######################################################################
+
+
+##########################
+# Poverty MLS
+##########################
+
+qda_mls_1 = qda(category_mls~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + year12+Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
+      , data = train)
+
+qda_mls_2 = qda(category_mls~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      +Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
+      , data = train)
+
+qda_mls_3 = qda(category_mls~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      , data = train) # 0.215, the best
+
+qda_mls_4 = qda(category_mls~urban+expense+house_ownership+old+children+depen+familysize
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + year12+Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
+      , data = train)
+
+qda_mls_5 = qda(category_mls~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      , data = train)
+
+#Predicting the test data
+pred_qda_mls_1 = predict(qda_mls_1, newdata=test)$class
+pred_qda_mls_2 = predict(qda_mls_2, newdata=test)$class
+pred_qda_mls_3 = predict(qda_mls_3, newdata=test)$class
+pred_qda_mls_4 = predict(qda_mls_4, newdata=test)$class
+pred_qda_mls_5 = predict(qda_mls_4, newdata=test)$class
+
+#Comparing predictions vs. real
+tab1 = table(pred_qda_mls_1, test$category_mls)
+tab2 = table(pred_qda_mls_2, test$category_mls)
+tab3 = table(pred_qda_mls_3, test$category_mls)
+tab4 = table(pred_qda_mls_4, test$category_mls)
+tab5 = table(pred_qda_mls_4, test$category_mls)
+tab1
+tab2
+tab3
+tab4
+tab5
+    #did qda predict no people in income_p_asset_p or am I reading the table wrong? 
+
+#Calculate misclassification rate
+misclassification.rate(tab1)
+misclassification.rate(tab2)
+misclassification.rate(tab3)
+misclassification.rate(tab4)
+misclassification.rate(tab5)
+
+qda_mls_1
+qda_mls_2
+qda_mls_3
+qda_mls_4
+qda_mls_5
+
+##########################
+# Poverty WB
+##########################
+
+qda_wb_1 = qda(category_wb~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + year12+Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
+      , data = train)
+
+qda_wb_2 = qda(category_wb~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      +Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
+      , data = train)
+
+qda_wb_3 = qda(category_wb~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      , data = train)
+
+qda_wb_4 = qda(category_wb~urban+expense+house_ownership+old+children+depen+familysize
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + year12+Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
+      , data = train)
+
+qda_wb_5 = qda(category_wb~urban+expense+house_ownership+old+children+depen+familysize
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      , data = train)
+
+#Predicting the test data
+pred_qda_wb_1 = predict(qda_wb_1, newdata=test)$class
+pred_qda_wb_2 = predict(qda_wb_2, newdata=test)$class
+pred_qda_wb_3 = predict(qda_wb_3, newdata=test)$class
+pred_qda_wb_4 = predict(qda_wb_4, newdata=test)$class
+pred_qda_wb_5 = predict(qda_wb_5, newdata=test)$class
+
+#Comparing predictions vs. real
+tab1 = table(pred_qda_wb_1, test$category_wb)
+tab2 = table(pred_qda_wb_2, test$category_wb)
+tab3 = table(pred_qda_wb_3, test$category_wb)
+tab4 = table(pred_qda_wb_3, test$category_wb)
+tab5 = table(pred_qda_wb_3, test$category_wb)
+tab1
+tab2
+tab3
+tab4
+tab5
+    #did qda predict no people in income_p_asset_p or am I reading the table wrong? 
+
+#Calculate misclassification rate
+misclassification.rate(tab1)
+misclassification.rate(tab2)
+misclassification.rate(tab3)
+misclassification.rate(tab4)
+misclassification.rate(tab5)
+
+qda_wb_1
+qda_wb_2
+qda_wb_3
+qda_wb_4
+qda_wb_5
+
+
 
 ##QDA model
 qda1 = qda(category ~ urban + f_income + expense + asset_cash_deposit + house_ownership + house_price + house_price_tot + debt_tot + old + children + depen + familysize 

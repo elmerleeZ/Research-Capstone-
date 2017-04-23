@@ -27,7 +27,8 @@ Tr <- mlogit.data(Train, shape = "wide", varying = 4:11, choice = "choice",
    sep = "", 
    alt.levels = c("choice1", "choice2"), id = "id")
 
-Tr <- Tr %>% filter()
+Tr <- Tr %>% filter(choice == T)
+Tr$choice <- Train$choice
 
 Train.ml <- mlogit(choice ~ price + time + change + comfort,Tr)
 

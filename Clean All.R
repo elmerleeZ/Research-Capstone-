@@ -209,7 +209,8 @@ family_head_all_restrict_final_1 <- family_head_all_restrict_final_1 %>%
 			asset_tot_p_wb = ifelse(asset_tot_index_wb<1,1,0),
 			asset_net_p_wb = ifelse(asset_net_index_wb<1,1,0)) %>%
 	mutate( income_index_wb = f_income/(365.25*1.25*exchange_rate*familysize), 
-			income_p_wb = ifelse(income_index_wb<1,1,0))
+			income_p_wb = ifelse(income_index_wb<1,1,0)) %>% 
+	ungroup()
 
 family_head_all_restrict_final_1 <- family_head_all_restrict_final_1 %>%
 	mutate(income_p_asset_p_mls = ifelse(income_p_mls == 0,0,ifelse(asset_net_p_mls ==0,0,1)), 
