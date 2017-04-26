@@ -21,26 +21,27 @@ library(caret)
 library(readstata13)
 
 setwd("/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS")
-family_head_all_restrict_final_2 <- read.dta13("family_head_all_restrict_final_2.dta")
+family_head_all_restrict_final_2 <- read.dta13("family_head_all_restrict_final_2.dta") %>%
+  mutate(expense = expense/1000,f_income=f_income/1000)
 
 
 ######################################################################
 # Organize Data
 ######################################################################
 #Creating one categorical variable
-family_head_all_restrict_final_1$provcd[family_head_all_restrict_final_1$provcd == 15] <- 14
-family_head_all_restrict_final_1$provcd[family_head_all_restrict_final_1$provcd == 46] <- 45
-family_head_all_restrict_final_1$provcd[family_head_all_restrict_final_1$provcd == 64] <- 62
-family_head_all_restrict_final_1$provcd[family_head_all_restrict_final_1$provcd == 65] <- 62
+    # family_head_all_restrict_final_1$provcd[family_head_all_restrict_final_1$provcd == 15] <- 14
+    # family_head_all_restrict_final_1$provcd[family_head_all_restrict_final_1$provcd == 46] <- 45
+    # family_head_all_restrict_final_1$provcd[family_head_all_restrict_final_1$provcd == 64] <- 62
+    # family_head_all_restrict_final_1$provcd[family_head_all_restrict_final_1$provcd == 65] <- 62
 
-family_head_all_restrict_final_1 <- family_head_all_restrict_final_1 %>%
-  mutate(category = ifelse(income_p_asset_p==1,0,ifelse(income_np_asset_p==1,1, ifelse(income_p_asset_np==1,2,ifelse(income_np_asset_np==1,3,0)))),
-         provcd = as.factor(provcd), 
-         countyid = as.factor(countyid), 
-         edu_highest = as.factor(edu_highest), 
-         marriage = as.factor(marriage),
-         health = as.factor(health)) %>%
-  mutate(eth_han = ifelse(ethnicity==1,1,0))
+    # family_head_all_restrict_final_1 <- family_head_all_restrict_final_1 %>%
+    #   mutate(category = ifelse(income_p_asset_p==1,0,ifelse(income_np_asset_p==1,1, ifelse(income_p_asset_np==1,2,ifelse(income_np_asset_np==1,3,0)))),
+    #          provcd = as.factor(provcd), 
+    #          countyid = as.factor(countyid), 
+    #          edu_highest = as.factor(edu_highest), 
+    #          marriage = as.factor(marriage),
+    #          health = as.factor(health)) %>%
+    #   mutate(eth_han = ifelse(ethnicity==1,1,0))
 
 #Creating function to calculate missclassification rate
 rm(misclassification.rate)
@@ -64,22 +65,26 @@ test = subset(family_head_all_restrict_final_2, year>2013)
 ##########################
 
 lda_mls_1 = lda(category_mls~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
-      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+employed
       + year12+Tianjin+Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
       , data = train)
 
 lda_mls_2 = lda(category_mls~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
-      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+employed
       +Tianjin+Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
       , data = train)
 
 lda_mls_3 = lda(category_mls~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
-      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+employed
       , data = train)
 
 lda_mls_4 = lda(category_mls~urban+expense+house_ownership+old+children+depen+familysize
-      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+employed
       + year12+Tianjin+Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
+      , data = train)
+
+lda_mls_5 = lda(category_mls~urban+expense+house_ownership+old+children+depen+familysize
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+employed
       , data = train)
 
 #Predicting the test data
@@ -87,16 +92,15 @@ pred_lda_mls_1 = predict(lda_mls_1, newdata=test)$class
 pred_lda_mls_2 = predict(lda_mls_2, newdata=test)$class
 pred_lda_mls_3 = predict(lda_mls_3, newdata=test)$class
 pred_lda_mls_4 = predict(lda_mls_4, newdata=test)$class
+pred_lda_mls_5 = predict(lda_mls_5, newdata=test)$class
 
 #Comparing predictions vs. real
 tab1 = table(pred_lda_mls_1, test$category_mls)
 tab2 = table(pred_lda_mls_2, test$category_mls)
 tab3 = table(pred_lda_mls_3, test$category_mls)
 tab4 = table(pred_lda_mls_4, test$category_mls)
-tab1
-tab2
-tab3
-tab4
+tab5 = table(pred_lda_mls_5, test$category_mls)
+
     #did lda predict no people in income_p_asset_p or am I reading the table wrong? 
 
 #Calculate misclassification rate
@@ -104,18 +108,20 @@ misclassification.rate(tab1)
 misclassification.rate(tab2)
 misclassification.rate(tab3)
 misclassification.rate(tab4)
+misclassification.rate(tab5)
 
 lda_mls_1
 lda_mls_2
 lda_mls_3
 lda_mls_4
+lda_mls_5
 
 
 ##########################
 # Try to test significance
 ##########################
     # mydata.manova <- manova(category_mls~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
-    #       + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed,  data=train)
+    #       + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+employed,  data=train)
     # summary(mydata.manova, test="Wilks")
 
     # mydata.lda.predict <- predict(lda_mls_3,data=train)
@@ -137,26 +143,26 @@ lda_mls_4
 ##########################
 
 lda_wb_1 = lda(category_wb~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
-      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+employed
       + year12+Tianjin+Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
       , data = train)
 
 lda_wb_2 = lda(category_wb~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
-      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+employed
       +Tianjin+Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
       , data = train)
 
 lda_wb_3 = lda(category_wb~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
-      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+employed
       , data = train)
 
 lda_wb_4 = lda(category_wb~urban+expense+house_ownership+old+children+depen+familysize
-      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+employed
       + year12+Tianjin+Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
       , data = train)
 
 lda_wb_5 = lda(category_wb~urban+expense+house_ownership+old+children+depen+familysize
-      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+employed
       , data = train)
 
 #Predicting the test data
@@ -203,26 +209,26 @@ lda_wb_5
 ##########################
 
 qda_mls_1 = qda(category_mls~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
-      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+employed
       + year12+Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
       , data = train)
 
 qda_mls_2 = qda(category_mls~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
-      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+employed
       +Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
       , data = train)
 
 qda_mls_3 = qda(category_mls~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
-      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+employed
       , data = train) # 0.215, the best
 
 qda_mls_4 = qda(category_mls~urban+expense+house_ownership+old+children+depen+familysize
-      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+employed
       + year12+Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
       , data = train)
 
-qda_mls_5 = qda(category_mls~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership
-      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+qda_mls_5 = qda(category_wb~urban+expense+house_ownership+old+children+depen+familysize
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+employed
       , data = train)
 
 #Predicting the test data
@@ -263,26 +269,26 @@ qda_mls_5
 ##########################
 
 qda_wb_1 = qda(category_wb~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
-      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+employed
       + year12+Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
       , data = train)
 
 qda_wb_2 = qda(category_wb~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
-      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+employed
       +Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
       , data = train)
 
 qda_wb_3 = qda(category_wb~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
-      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+employed
       , data = train)
 
 qda_wb_4 = qda(category_wb~urban+expense+house_ownership+old+children+depen+familysize
-      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+employed
       + year12+Hebei+Shanxi+Liaoning+Jilin+Heilongjiang+Shanghai+Jiangsu+Zhejiang+Anhui+Fujian+Jiangxi+Shandong+Henan+Hubei+Hunan+Guangdong+Guangxi+Chongqing+Sichuan+Guizhou+Yunnan+Shannxi+Gansu
       , data = train)
 
 qda_wb_5 = qda(category_wb~urban+expense+house_ownership+old+children+depen+familysize
-      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+health2+employed
+      + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+employed
       , data = train)
 
 #Predicting the test data
