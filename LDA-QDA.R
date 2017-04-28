@@ -25,6 +25,16 @@ family_head_all_restrict_final_2 <- read.dta13("family_head_all_restrict_final_2
   mutate(expense = expense/1000,f_income=f_income/1000)
 
 
+##########################
+# Test Endogeneity 
+##########################
+
+family_head_all_restrict_final_2 <- family_head_all_restrict_final_2 %>% group_by(fid10) %>% grangertest(income_index_mls~expense, order=1)
+
+library(lmtest)
+grangertest(income_index_mls~expense, order=0,data = family_head_all_restrict_final_2)
+grangertest(expense~income_index_mls, order=1,data = family_head_all_restrict_final_2)
+
 ######################################################################
 # Organize Data
 ######################################################################
@@ -63,6 +73,7 @@ test = subset(family_head_all_restrict_final_2, year>2013)
 ##########################
 # Poverty MLS
 ##########################
+
 
 lda_mls_1 = lda(category_mls~urban+f_income+expense+asset_liq+house_price+debt_tot+house_ownership+old+children+depen+familysize
       + eth_han+age+age2+gender+edu2+edu3+edu4+marr+health1+employed
@@ -115,7 +126,6 @@ lda_mls_2
 lda_mls_3
 lda_mls_4
 lda_mls_5
-
 
 ##########################
 # Try to test significance
@@ -366,6 +376,29 @@ model <- train(
     repeats=15))
 model
 plot(model)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ################################################

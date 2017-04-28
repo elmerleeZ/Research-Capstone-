@@ -257,6 +257,8 @@ ggplot(family_head_all_restrict_final_2, aes(y=asset_liq_index, x=income_index))
 length(unique(family_head_all_restrict_final_1$fid10)) 
 sum(with(family_head_all_restrict_final_1, urban==1)) # 4947
 nrow(filter(family_head_all_restrict_final_1,urban==0)) # 6176 - should be 6270
+
+
 ################################################
 # Export
 ################################################

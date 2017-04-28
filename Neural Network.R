@@ -1,57 +1,11 @@
-install.packages("RSNNS")
-library("RSNNS")
-?jordan
-?elman
+################################################
+# Prepare
+################################################
 
-##################################################
-# Example 1
-##################################################
-
-data(snnsData)
-inputs <- snnsData$eight_016.pat[,inputColumns(snnsData$eight_016.pat)]
-outputs <- snnsData$eight_016.pat[,outputColumns(snnsData$eight_016.pat)]
-
-par(mfrow=c(1,2))
-
-modelElman <- elman(inputs, outputs, size=8, learnFuncParams=c(0.1), maxit=1000)
-modelElman
-modelJordan <- jordan(inputs, outputs, size=8, learnFuncParams=c(0.1), maxit=1000)
-modelJordan
-
-plotIterativeError(modelElman)
-plotIterativeError(modelJordan)
-
-summary(modelElman)
-summary(modelJordan)
-
-
-##################################################
-# Example 2
-##################################################
-
-laser <- snnsData$laser_1000.pat
-inputs <- laser[, inputColumns(laser)]
-targets <- laser[, outputColumns(laser)]
-patterns <- splitForTrainingAndTest(inputs, targets, ratio = 0.15)
-
-model <- elman(patterns$inputsTrain, patterns$targetsTrain,
-  size = c(8, 8), learnFuncParams = c(0.1), maxit = 500,
-  inputsTest = patterns$inputsTest, targetsTest = patterns$targetsTest,
-  linOut = FALSE)
-
-
-plot(inputs, type = "l")
-plot(targets[1:100], type = "l")
-lines(model$fitted.values[1:100], col = "green")
-
-plotIterativeError(model)
-plotRegressionError(patterns$targetsTrain, model$fitted.values)
-plotRegressionError(patterns$targetsTest, model$fittedTestValues)
-hist(model$fitted.values - patterns$targetsTrain)
-
-######################################################################
-# Attepts by Marcos 
-######################################################################
+# install.packages("RSNNS")
+# library("RSNNS")
+# ?jordan
+# ?elman
 
 install.packages('neuralnet')
 install.packages('caret')
@@ -62,10 +16,19 @@ library(nnet)
 library(caret)
 library(readstata13)
 
-setwd("/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS")
+#Creating function to calculate missclassification rate
+rm(misclassification.rate)
+misclassification.rate=function(tab){
+  num1=sum(diag(tab))
+  denom1=sum(tab)
+  signif(1-num1/denom1,3)
+}
 
-load("family_head_all_restrict_final_1.RData")
-data = family_head_all_restrict_final_1
+setwd("/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS")
+data = read.dta13("family_head_all_restrict_final_2.dta")
+
+  # load("family_head_all_restrict_final_1.RData")
+  # data = family_head_all_restrict_final_1
 attach(data)
 
 ################################################
@@ -168,3 +131,98 @@ original_values = max.col(test2[, 22:25])
 pr.nn_2 = max.col(pr.nn_)
 mean(pr.nn_2 == original_values)
 ##Has 70% Accuracy in predicting third year
+
+
+################################################
+# ATTEMPT 3.
+################################################
+
+
+###ATTEMPT 3 - Revisiting attempt 1 with improvements from attempt 2
+
+#Defining inputs and outputs
+inputstr = train2[, 3:21]
+outputstr = train2[, 22:25]
+inputste = test2[, 3:21]
+outputste = test2[, 22:25]
+
+
+fit2mlp = mlp(x = inputstr, y = outputstr, size = 5, learnFuncParams = c(0.1),
+              maxit = 1000, inputsTest = inputste, targetsTest = outputste)
+summary(fit2mlp)
+
+#Seems to have converged:
+plotIterativeError(fit2mlp)
+
+#Predicting
+predictions = predict(fit2mlp, inputste)
+plotRegressionError(predictions[,1], outputste[,1])
+confusionMatrix(outputstr, fitted.values(fit2mlp))
+CF = confusionMatrix(outputste2,predictions)
+misclassification.rate(CF)
+#This one gets only 15% misclassification
+
+library(devtools)
+source_url('https://gist.githubusercontent.com/fawda123/7471137/raw/466c1474d0a505ff044412703516c34f1a4684a5/nnet_plot_update.r')
+par(mfrow=c(1,1))
+plot.nnet(fit2mlp)
+
+
+
+
+
+
+
+
+
+
+######################################################################
+# Back Up - Previous Examples
+# Example 1
+##################################################
+
+
+    # data(snnsData)
+    # inputs <- snnsData$eight_016.pat[,inputColumns(snnsData$eight_016.pat)]
+    # outputs <- snnsData$eight_016.pat[,outputColumns(snnsData$eight_016.pat)]
+
+    # par(mfrow=c(1,2))
+
+    # modelElman <- elman(inputs, outputs, size=8, learnFuncParams=c(0.1), maxit=1000)
+    # modelElman
+    # modelJordan <- jordan(inputs, outputs, size=8, learnFuncParams=c(0.1), maxit=1000)
+    # modelJordan
+
+    # plotIterativeError(modelElman)
+    # plotIterativeError(modelJordan)
+
+    # summary(modelElman)
+    # summary(modelJordan)
+
+
+##################################################
+# Example 2
+##################################################
+
+
+    # laser <- snnsData$laser_1000.pat
+    # inputs <- laser[, inputColumns(laser)]
+    # targets <- laser[, outputColumns(laser)]
+    # patterns <- splitForTrainingAndTest(inputs, targets, ratio = 0.15)
+
+    # model <- elman(patterns$inputsTrain, patterns$targetsTrain,
+    #   size = c(8, 8), learnFuncParams = c(0.1), maxit = 500,
+    #   inputsTest = patterns$inputsTest, targetsTest = patterns$targetsTest,
+    #   linOut = FALSE)
+
+
+    # plot(inputs, type = "l")
+    # plot(targets[1:100], type = "l")
+    # lines(model$fitted.values[1:100], col = "green")
+
+    # plotIterativeError(model)
+    # plotRegressionError(patterns$targetsTrain, model$fitted.values)
+    # plotRegressionError(patterns$targetsTest, model$fittedTestValues)
+    # hist(model$fitted.values - patterns$targetsTrain)
+
+
