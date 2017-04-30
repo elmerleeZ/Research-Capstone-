@@ -12,41 +12,8 @@ findit femlogit
 ssc install femlogit
 
 cd "/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS"
+cd "C:/Users/zyl220/Downloads/temp/poverty"
 use family_head_all_restrict_final_1, clear
-
-****************************************************************
-*** A-Bound Example
-****************************************************************
-
-/*** example 1 ***/
-
-webuse abdata
-
-xtabond2 n L(1/2).n L(0/1).w L(0/2).(k ys) yr*, gmm(L.n) ///
-iv(L(0/1).w L(0/2).(k ys) yr*) nolevel robust small
-
-xtabond2 n L(1/2).n L(0/1).w L(0/2).(k ys) yr*, gmm(L(n w k))///
-iv(L(0/2).ys yr*) nolevel robust small
-
-/*** example 2 ***/
-xtabond2 kc L.kc cgnp _I*, gmm(L.kc cgnp, lag(2 8)) iv(_I* L.openc) ///
-twostep robust nodiffsargan
-
-xtabond2 kc L.kc cgnp _I*, gmm(L.kc cgnp, lag(2 8)) iv(_I* L.openc) ///
-twostep robust nodiffsargan orthog
-
-
-****************************************************************
-*** A-Bound Regression
-****************************************************************
-
-tsset fid10 year 
-
-xtabond2 f_income L.f_income L.(expense asset_tot debt_tot old children) year, gmm(expense asset_tot debt_tot old children lag(2 2)) ///
-iv(L(depen familysize)) nolevel robust small
-
-
-f_income  expense asset_tot debt_tot old children depen familysize
 
 *****************************************************************
 **** Organize Data
@@ -352,6 +319,21 @@ outreg2 using femlogit22.doc, tstat eform see replace
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ****************************************************************
 *** Back Up
 ****************************************************************
@@ -380,3 +362,36 @@ gsem (1.category_mls <- urban expense asset_cash_deposit asset_financial house_o
 /*** femlogit ***/
 femlogit category_mls urban expense f_income debt_tot, group(fid10) b(0)
 
+****************************************************************
+*** A-Bound Example
+****************************************************************
+
+/*** example 1 ***/
+
+webuse abdata
+
+xtabond2 n L(1/2).n L(0/1).w L(0/2).(k ys) yr*, gmm(L.n) ///
+iv(L(0/1).w L(0/2).(k ys) yr*) nolevel robust small
+
+xtabond2 n L(1/2).n L(0/1).w L(0/2).(k ys) yr*, gmm(L(n w k))///
+iv(L(0/2).ys yr*) nolevel robust small
+
+/*** example 2 ***/
+xtabond2 kc L.kc cgnp _I*, gmm(L.kc cgnp, lag(2 8)) iv(_I* L.openc) ///
+twostep robust nodiffsargan
+
+xtabond2 kc L.kc cgnp _I*, gmm(L.kc cgnp, lag(2 8)) iv(_I* L.openc) ///
+twostep robust nodiffsargan orthog
+
+
+****************************************************************
+*** A-Bound Regression
+****************************************************************
+
+tsset fid10 year 
+
+xtabond2 f_income L.f_income L.(expense asset_tot debt_tot old children) year, gmm(expense asset_tot debt_tot old children lag(2 2)) ///
+iv(L(depen familysize)) nolevel robust small
+
+
+f_income  expense asset_tot debt_tot old children depen familysize

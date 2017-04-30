@@ -3,6 +3,7 @@
 #####################
 
 setwd("/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS")
+setwd("C:/Users/zyl220/Downloads/temp/poverty")
 install.packages("readstata13")
 library(readstata13)
 
@@ -13,8 +14,6 @@ library(readstata13)
 family_head_all_restrict2 <- read.dta13("family_head_all_restrict2.dta")
 
 family_head_all_restrict2_0 <- family_head_all_restrict2 %>%
-	# dplyr::select(-head) %>% 
-	# dplyr::mutate(debt_tot = debt_mortgage_tot + debt_frind_other_ins) %>%
 	group_by(fid10) %>% # here only group by fid10 to see duplicates across years
     dplyr::mutate(num_obs = n()) %>%
     select(fid14, fid12, fid10, year, provcd, countyid, urban, f_income, expense, asset_cash_deposit, asset_financial, house_ownership, house_price, house_price_tot, debt_mortgage_tot, debt_frind_other_ins, debt_tot, old, children, depen, familysize, pid, ethnicity, age, party, gender, edu_highest, marriage, health, p_income, employ, num_obs)
@@ -24,24 +23,14 @@ table(family_head_all_restrict2_0$num_obs)
 	# 1523  4112 28917  4484  2025   222   154    56 
 
 
-## Keep obs with complete
-# family_head_all_restrict2_1 <- family_head_all_restrict2_0 %>% 
-#   filter(num_obs ==3) %>% 
-#   group_by(fid10,year) %>%
-#   dplyr::mutate(num_obs = n()) %>% ungroup()
-
-#   table(family_head_all_restrict2_1$num_obs)
-
-  
-## Only keep obs with num_obs 3 or more
+## See num_obs by year
 family_head_all_restrict2_2 <- family_head_all_restrict2_0 %>%
-	filter(num_obs >=3) %>%
 	group_by(year,fid10) %>% # here group by both fid10 and year to see duplicates in a single year
 	dplyr::mutate(num_obs = n())
 
 table(family_head_all_restrict2_2$num_obs)
-	# 1     2     3     4     5 
-	# 31521  3780   492    60     5 
+#     1     2     3     4     5 
+# 37150  3786   492    60     5 
 
 family_head_all_restrict2_20 <- family_head_all_restrict2_2 %>% filter(num_obs ==1) 
 
@@ -81,21 +70,21 @@ family_head_all_restrict2_21 <- family_head_all_restrict2_2 %>%
 
 family_head_all_restrict2_23 <- bind_rows(family_head_all_restrict2_20, family_head_all_restrict2_21) # bind together
 family_head_all_restrict2_23 <- family_head_all_restrict2_23[order(family_head_all_restrict2_23$fid10),] # order
-family_head_all_restrict2_23 <- family_head_all_restrict2_23 %>% group_by(fid10) %>% mutate(num_obs = n())
-table(family_head_all_restrict2_23$num_obs)
-	# 1     2     3 
-	# 1   200 33390 
 
 ## Append together
 family_head_all_restrict_final <- family_head_all_restrict2_23 %>% 
-	filter(num_obs ==3) %>%
+	# filter(num_obs ==3) %>%
 	group_by(fid10) %>%
 	dplyr::mutate(num_obs = n()) %>% ungroup %>%
 	group_by(fid10,year) %>%
 	dplyr::mutate(num_obs_year = n()) %>% ungroup
 
 table(family_head_all_restrict_final$num_obs)
+ #    1     2     3 
+ # 1527  4306 33390 
 table(family_head_all_restrict_final$num_obs_year)
+#     1 
+# 39223 
 
 family_head_all_restrict_final$num_obs <- NULL
 family_head_all_restrict_final$num_obs_year <- NULL
@@ -222,7 +211,10 @@ family_head_all_restrict_final_1 <- family_head_all_restrict_final_1 %>%
 		   income_p_asset_np_wb = ifelse(income_p_wb == 0,0,ifelse(asset_net_p_wb ==1,0,1)), 
 		   income_np_asset_np_wb = ifelse(income_p_wb == 1,0,ifelse(asset_net_p_wb ==1,0,1)))
 
-family_head_all_restrict_final_1 <- family_head_all_restrict_final_1 %>% filter(asset_net_index_wb<10000,income_index_wb<200,asset_net_index_mls<5000,income_index_mls<100)
+################################################
+# Summary and Restrict Again
+################################################
+
 ## See summary
 ggplot(family_head_all_restrict_final_1, aes(y=asset_net_index_mls, x=income_index_mls)) +
   geom_point(shape = 1)+
@@ -246,12 +238,8 @@ ggplot(family_head_all_restrict_final_1, aes(y=asset_liq_index, x=income_index))
 	summary(family_head_all_restrict_final_1$income_p_asset_np_wb)
 	summary(family_head_all_restrict_final_1$income_np_asset_np_wb)
 
-family_head_all_restrict_final_2 <- family_head_all_restrict_final_1 %>%
-	filter(income_index <100, asset_liq_index<300)
-
-ggplot(family_head_all_restrict_final_2, aes(y=asset_liq_index, x=income_index)) +
-  geom_point(shape = 1)+
-  geom_smooth(method=lm) 
+## Restrict Again
+family_head_all_restrict_final_1 <- family_head_all_restrict_final_1 %>% filter(asset_net_index_wb<10000,income_index_wb<200,asset_net_index_mls<5000,income_index_mls<100)
 
 
 length(unique(family_head_all_restrict_final_1$fid10)) 
@@ -264,6 +252,8 @@ nrow(filter(family_head_all_restrict_final_1,urban==0)) # 6176 - should be 6270
 ################################################
 library(foreign)
 setwd("/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS")
+setwd("C:/Users/zyl220/Downloads/temp/poverty")
+
 save(family_head_all_restrict_final_1, file = "family_head_all_restrict_final_1.RData")
 write.csv(family_head_all_restrict_final_1, file = 'family_head_all_restrict_final_1.csv')
 write.dta(family_head_all_restrict_final_1, file = 'family_head_all_restrict_final_1.dta')
