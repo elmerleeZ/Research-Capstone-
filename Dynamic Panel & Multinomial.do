@@ -170,16 +170,16 @@ capture log close
 set more off
 
 cd "/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS"
-cd "C:/Users/zyl220/Downloads/temp"
+cd "C:/Users/zyl220/Downloads/temp/poverty"
 use family_head_all_restrict_final_2, clear
 
 ** Still expense need to be changed: 
 rename expense expense_old
-replace expense = expense_old/1000
+gen expense = expense_old/1000
 
 set more off
 log using "/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Output/Regression_motinomial.log", replace
-log using "C:/Users/zyl220/Downloads/temp/Regression_motinomial.log", replace
+log using "C:/Users/zyl220/Downloads/temp/poverty/Regression_motinomial.log", replace
 
 ** Set panelvar
 xtset fid10 year
@@ -246,12 +246,12 @@ outreg2 using femlogit1.doc, append
 **  no year no prov no asset effect
 set more off
 femlogit category_mls urban expense house_ownership old children depen familysize ///
-   year12 year14 eth_han age age2 gender edu2 edu3 edu4 marr health1 employed, group(fid10) b(3) 
+   year12 year14 eth_han age age2 gender edu2 edu3 edu4 marr health1 employed, group(fid10) b(0) 
 outreg2 using femlogit1.doc, replace 
 
 set more off
 femlogit category_mls urban expense house_ownership old children depen familysize ///
-   year12 year14 eth_han age age2 gender edu2 edu3 edu4 marr health1 employed, group(fid10) b(3) or
+   year12 year14 eth_han age age2 gender edu2 edu3 edu4 marr health1 employed, group(fid10) b(0) or
 outreg2 using femlogit12.doc, tstat eform see replace
 
 /***  no year no prov with specific asset effect
@@ -309,12 +309,12 @@ outreg2 using femlogit2.doc, append*/
 ** no asset no year no prov
 set more off
 femlogit category_wb urban expense house_ownership old children depen familysize ///
-   year12 year14 eth_han age age2 gender edu2 edu3 edu4 marr health1 employed, group(fid10) b(3)
+   year12 year14 eth_han age age2 gender edu2 edu3 edu4 marr health1 employed, group(fid10) b(0)
 outreg2 using femlogit2.doc, replace
 
 set more off
 femlogit category_wb urban expense house_ownership old children depen familysize ///
-   year12 year14 eth_han age age2 gender edu2 edu3 edu4 marr health1 employed, group(fid10) b(3) or
+   year12 year14 eth_han age age2 gender edu2 edu3 edu4 marr health1 employed, group(fid10) b(0) or
 outreg2 using femlogit22.doc, tstat eform see replace
 
 

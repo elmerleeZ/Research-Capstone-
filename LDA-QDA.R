@@ -21,6 +21,8 @@ library(caret)
 library(readstata13)
 
 setwd("/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS")
+setwd("C:/Users/zyl220/Downloads/temp/poverty")
+
 family_head_all_restrict_final_2 <- read.dta13("family_head_all_restrict_final_2.dta") %>%
   mutate(expense = expense/1000,f_income=f_income/1000)
 
