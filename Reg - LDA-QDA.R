@@ -17,7 +17,7 @@ library(stringr)
 library(tidyverse)
 library(stargazer)
 library(MASS)
-library(caret)
+# library(caret)
 library(readstata13)
 
 setwd("/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS")
@@ -62,6 +62,14 @@ misclassification.rate=function(tab){
   denom1=sum(tab)
   signif(1-num1/denom1,3)
 }
+
+##########################
+# Trying Different Cross-V
+
+##Split 85% 15% as train and test
+train = dplyr::sample_frac(family_head_all_restrict_final_2, 0.85)
+sid<-as.numeric(rownames(train)) # because rownames() returns character
+test<-family_head_all_restrict_final_2[-sid,]
 
 ##Using 2010 and 2012 as train, to test on 2014
 train = subset(family_head_all_restrict_final_2, year<2013)
