@@ -1,4 +1,4 @@
-clear all
+ clear all
 prog drop _all
 capture log close
 set more off
@@ -7,30 +7,30 @@ set more off
 ** Import Datasets and Prepare
 ******************************************
 
-cd "/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS/2010"
+cd "/Users/zongyangli/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS/2010"
 use family_head_2010, clear
 gen year = 2010
-cd "/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS"
+cd "/Users/zongyangli/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS"
 save family_head_2010, replace
 
-cd "/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS/2012"
+cd "/Users/zongyangli/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS/2012"
 use family_head_2012, clear
 drop edu_highest
 rename edu_latest edu_highest
 gen year = 2012
-cd "/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS"
+cd "/Users/zongyangli/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS"
 save family_head_2012, replace
 
-cd "/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS/2014"
+cd "/Users/zongyangli/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS/2014"
 use family_head_2014, clear
 drop edu_highest
 rename edu_latest edu_highest
 gen year = 2014
 sort fid12
-cd "/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS"
+cd "/Users/zongyangli/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS"
 save family_head_2014,replace
 
-cd "/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS"
+cd "/Users/zongyangli/Google Drive/Wagner/Semester 4/Capstone 2016-2017/Data/Raw - CFPS"
 use family_head_2014, clear
 append using family_head_2012
 append using family_head_2010
@@ -129,6 +129,7 @@ replace debt_frind_other_ins = 0 if debt_frind_other_ins==.
 replace children = 0 if children==.
 
 * Deal with missings
+replace gender =. if gender<0
 replace age =. if age<0
 replace marriage =. if marriage <0
 replace health =. if health <0
