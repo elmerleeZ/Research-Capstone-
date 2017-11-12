@@ -2,8 +2,7 @@
 # Prepare
 #####################
 
-setwd("/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS")
-setwd("C:/Users/zyl220/Downloads/temp/poverty")
+setwd("/Users/zongyangli/Google Drive/Wagner/Semester 4/Capstone 2016-2017/Data/Raw - CFPS")
 install.packages("readstata13")
 library(readstata13)
 
@@ -32,8 +31,10 @@ table(family_head_all_restrict2_2$num_obs)
 #     1     2     3     4     5 
 # 37150  3786   492    60     5 
 
+## Seperate Out Obs appearing only once a year
 family_head_all_restrict2_20 <- family_head_all_restrict2_2 %>% filter(num_obs ==1) 
 
+## Seperate Out Obs appearing multi times a year
 family_head_all_restrict2_21 <- family_head_all_restrict2_2 %>%
 	filter(num_obs>1) %>%
 	group_by(year,fid10) %>%
@@ -251,8 +252,7 @@ nrow(filter(family_head_all_restrict_final_1,urban==0)) # 6176 - should be 6270
 # Export
 ################################################
 library(foreign)
-setwd("/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS")
-setwd("C:/Users/zyl220/Downloads/temp/poverty")
+setwd("/Users/zongyangli/Google Drive/Wagner/Semester 4/Capstone 2016-2017/Data/Raw - CFPS")
 
 save(family_head_all_restrict_final_1, file = "family_head_all_restrict_final_1.RData")
 write.csv(family_head_all_restrict_final_1, file = 'family_head_all_restrict_final_1.csv')
