@@ -3,11 +3,11 @@ prog drop _all
 capture log close
 set more off
 
-cd "/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS/2010"
+cd "/Users/zongyangli/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017/Data/Raw - CFPS/2010"
 
-****************************************************************
-*** Household Head Analysis ***
-****************************************************************
+********************************************************************************
+* Partition Datasets
+*****
 
 ** gender age party ethinicity(qa5code), highest level of edu attained(cfps2010edu_best), years of edu(cfps2010eduy_best), current marital status(qe1), 
 ** self-eval health(qp3), employment(qg3), the year you participate the party(qa701),
@@ -15,29 +15,29 @@ cd "/Users/elmerleezy/Google Drive/Wagner/Semester 4/Capstone/Capstone 2016-2017
 * in 2010, personal income is (income)
 * no party info
 
+/*** Seperate Independent ***/
 use cfps2010adult_report_nat072016, clear
 keep pid fid income gender qa1age qa701 qa5code cfps2010edu_best qe1 qp3 qg3
 save independent_2010
 
+/*** Seperate Ethnicity ***/
 use cfps2010adult_report_nat072016, clear
 keep pid fid qa5code
 rename fid fid10
 rename qa5code ethnicity
 save ethnicity_2010, replace
 
-
-********get the info of hh head            
-*****keep the person with the largest amount of personal income
+/*** Filter Household head ***/
+* Head defined by largest income
 use independent_2010, clear 
 bysort fid: egen head=max(income)
 keep if head==income
 
-
-********within a household, keep the first one when their personal income are the same 
-* (14,608 households)
+* within a household, keep the first one when their personal income are the same * (14,608 households)
 bysort fid: gen head_order=_n
 keep if head_order==1
 
+* Rename variables
 rename qa1age age
 rename qa701 party
 rename qa5code ethnicity
@@ -51,17 +51,18 @@ drop head_order head
 
 save head_independent_2010,replace
 
+/*** Exploratory Sum Statistics ***/
 tab gender
 su age 
 tab edu_highest
 tab marriage
 tab health
 tab employ  
-*****Notes:variables like party and ethinicity have a lot of missing
+/* Notes:variables like party and ethinicity have a lot of missing */
 
-****************************************************************
-*** Family  Analysis ***
-****************************************************************
+********************************************************************************
+* Family  Level Variables
+*****
 
 ** number of old       （0.48 on average）
 use independent_2010, clear
@@ -87,13 +88,13 @@ collapse (sum) children, by (fid)
 su children
 save children_2010, replace
 
-****************************************
-*** Financial Information ***
-****************************************
+********************************************************************************
+* Financial Information
+*****
 
 ***************get the info of income and expenses  （income:55534, expense:57387）
 use cfps2010family_report_nat072016, clear
-keep fid provcd countyid urban familysize ff601 ff401 expense fd1 fd4 fd703 total_asset savings stock funds debit_other company otherasset valuable nonhousing_debts house_debts  fh201_a_1 fh201_a_3 fh201_a_5 fh201_a_6   
+keep fid provcd countyid urban familysize ff601 ff401 expense fd1 fd4 fd703 total_asset savings stock funds debit_other company otherasset valuable nonhousing_debts house_debts fh201_a_1 fh201_a_3 fh201_a_5 fh201_a_6   
 
 * recode these values into missing
 mvdecode _all, mv(-8)
